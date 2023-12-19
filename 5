@@ -1,0 +1,275 @@
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+int option;
+
+//生成运算符号
+const char* get_operation(int option)
+{
+    switch (option)
+    {
+    case 1:
+        return "+";
+    case 2:
+        return "-";
+    case 3:
+        return "x";
+    case 4:
+        return "/";
+    case 5:
+        return "%";
+    case 6:
+        return "sin";
+    case 7:
+        return "cos";
+    case 8:
+        return "tan";
+    case 9:
+        return "arcsin";
+    case 10:
+        return "arccos";
+    case 11:
+        return "arctan";
+    case 12:
+        return "^2";
+    case 13:
+        return "^0.5";
+    case 14:
+        return "^";
+    default:
+        break;
+    }
+}
+// 显示菜单选项
+void display_menu()
+{
+    printf("\033[1;37m---------------------------------------------------------------------\033[0m\n");
+    printf("\n\033[1;37m          ╔═════════════════════════════════════════════╗          \033[0m\n");
+    printf("\033[1;37m          ║           XXX   运算选项菜单   XXX          ║          \033[0m\n");
+    printf("\033[1;37m          ╠═════════════════════════════════════════════╣\033[0m\n");
+    printf("\033[1;37m          ║***************    1. 加法    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************    2. 减法    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************    3. 乘法    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************    4. 除法    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************    5. 求余    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************    6. 正弦    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************    7. 余弦    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************    8. 正切    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************    9. 反正弦  ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************   10. 反余弦  ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************   11. 反正切  ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************   12. 平方    ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************   13. 平方根  ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************   14. 幂运算  ***************║          \033[0m\n");
+    printf("\033[1;37m          ║***************   15. 退出    ***************║          \033[0m\n");
+    printf("\033[1;37m          ╚═════════════════════════════════════════════╝\033[0m\n\n");
+    printf("                           请输入选项号码: ");
+}
+//保存结果进文件mydata.exe
+void save_result(const char* operation, float num1, float num2, float result)
+{
+    FILE* file;
+    if (fopen_s(&file, "mydata.txt", "a") == 0)
+    {
+        if (num2 == 0) {
+            if (strcmp(operation, "^2") == 0) 
+            {
+                fprintf(file, "%.2f^2=%.6f\n", num1,result);//平方
+            }
+            else if (strcmp(operation, "^0.5") == 0) 
+            {
+                fprintf(file, "√%.2f=%.6f\n", num1,result);//平方根
+            }
+            else if (strcmp(operation, "+") == 0)
+            {
+                fprintf(file, "%.2f+0.00=%.6f\n", num1, result);//加法
+            }
+            else if (strcmp(operation, "-") == 0)
+            {
+                fprintf(file, "%.2f-0.00=%.6f\n", num1, result);//减法
+            }
+            else if (strcmp(operation, "x") == 0)
+            {
+                fprintf(file, "%.2f x 0.00=%.6f\n", num1, result);//乘法
+            }
+            else 
+            {
+                fprintf(file, "%s(%.2f)=%.6f\n", operation, num1, result);//其他一元输出格式
+            }
+        }
+        else if (strcmp(operation, "幂运算") == 0) 
+        {
+            fprintf(file, "%.2f^%.2f=%.6f\n", num1,num2 ,result);  //幂运算输出格式
+        }
+        else 
+        {
+            fprintf(file, "%.2f %s %.2f=%.6f\n", num1, operation,num2, result);  //其他二元操作输出格式 
+        }
+        fclose(file);
+    }
+    else
+    {
+        printf("保存失败");
+    }
+}
+// 获取用户输入的数值
+float get_input(const char* message)
+{
+    float num;
+    printf("%s", message);
+    scanf_s("%f", &num);
+    return num;
+}
+
+// 检查输入值是否合法
+int is_valid_input(float num1, float num2, int option)
+{
+    switch (option)
+    {
+    case 1: // 加法
+    case 2: // 减法
+    case 3: // 乘法
+    case 6: // 正弦
+    case 7: // 余弦
+    case 8: // 正切
+    case 11: // 反正切
+    case 12: // 平方
+    case 14: // 幂运算
+        return 1; // 这些操作允许任何输入值
+
+    case 4: // 除法
+    case 5: // 求余
+        if (num2 != 0)
+        {
+            return 1; // 除法和求余允许任何输入值，除了被零除
+        }
+        else
+        {
+            printf("                           输入错误：除数不能为零\n"); // 提示用户除数不能为零
+            return 0; // 返回0表示输入无效
+        }
+        break;
+
+    case 9: //反正弦
+    case 10: // 反余弦
+        if (num1 >= -1 && num1 <= 1)
+        {
+            return 1; // 反正弦和反余弦只允许输入范围在[-1, 1]之间的值
+        }
+        else
+        {
+            printf("                    输入错误：输入值必须在[-1, 1]之间\n"); // 提示用户输入值超出范围
+            return 0; // 返回0表示输入无效
+        }
+        break;
+    case 13: // 平方根
+        if (num1 >= 0)
+        {
+            return 1; // 只允许非负数输入
+        }
+        else
+        {
+            printf("                        输入错误：输入值必须为非负数\n"); // 提示用户输入值必须为非负数
+            return 0; // 返回0表示输入无效
+        }
+        break;
+
+    default:
+        printf("                           输入错误：无效的选项\n"); // 提示用户选择了无效的选项
+        return 0; // 返回0表示输入无效
+    }
+}
+// 定义运算函数
+float calculate(float num1, float num2, int option)
+{
+    float result;
+    switch (option)
+    {
+    case 1: // 加法
+        result = num1 + num2;
+        break;
+    case 2: // 减法
+        result = num1 - num2;
+        break;
+    case 3: // 乘法
+        result = num1 * num2;
+        break;
+    case 4: // 除法
+        result = num1 / num2;
+        break;
+    case 5: // 求余
+        result = fmod(num1, num2);
+        break;
+    case 6: // 正弦
+        result = sin(num1);
+        break;
+    case 7: // 余弦
+        result = cos(num1);
+        break;
+    case 8: // 正切
+        result = tan(num1);
+        break;
+    case 9: // 反正弦
+        result = asin(num1);
+        break;
+    case 10: // 反余弦
+        result = acos(num1);
+        break;
+    case 11: // 反正切
+        result = atan(num1);
+        break;
+    case 12: // 平方
+        result = num1 * num1;
+        break;
+    case 13: // 平方根
+        result = sqrt(num1);
+        break;
+    case 14: // 幂运算
+        result = pow(num1, num2);
+        break;
+    default:
+        printf("                               错误：无效的选项\n");
+        result = 0.0f;
+        break;
+    }
+    return result;
+}
+
+int main()
+{
+    float num1 = 0.0f; // 初始化num1
+    float num2 = 0.0f; // 初始化num2
+
+    do
+    {
+        display_menu();
+        scanf_s("%d", &option);
+        if (option == 15) // 退出程序
+        {
+            printf("                          感谢使用计算器！再见！\n");
+            break;
+        }
+        if (option==1 || option == 3 || option == 4 || option == 5 || option == 6 || option == 7 || option == 8 || option == 9 || option == 10 || option == 11 || option == 12 || option == 13 || option == 14 || option ==2)
+        {
+            num1 = get_input("                           请输入第一个数值: ");
+            if (option != 6 && option != 7 && option != 8 && option != 9 && option != 10 && option != 11 && option != 12 && option != 13)
+            {
+                num2 = get_input("                           请输入第二个数值: ");
+            }
+            if (is_valid_input(num1, num2, option))
+            {
+                float result = calculate(num1, num2, option);
+                printf("                           计算结果: %.2f\n", result);
+                save_result(get_operation(option), num1, num2, result); // 调用保存结果到文件的函数
+            }
+
+        }
+        else
+        {
+            printf("                           选项无效,请重新输入\n");
+            continue;
+        }
+    } while (1);
+
+    return 0;
+}
